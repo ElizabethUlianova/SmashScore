@@ -11,7 +11,7 @@
       width: 600px;
       height: 600px;
       overflow: hidden;
-      background: #E0E0E0;
+      background: #000000;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
       color: #fff;
       user-select: none;
@@ -41,7 +41,7 @@
       background: #5A5A5A;
       border-radius: 16px;
       padding: 20px 24px;
-      font-size: 20px;
+      font-size: 28px;
       font-weight: 600;
       color: #fff;
       text-align: center;
@@ -74,7 +74,7 @@
 
     .match-result {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       gap: 3px;
       min-width: 38px;
@@ -83,15 +83,15 @@
       width: 9px; height: 9px;
       border-radius: 50%;
     }
-    .match-result.win  .match-result-dot { background: #4CAF50; }
-    .match-result.loss .match-result-dot { background: #E05A00; }
+    .match-result.win  .match-result-dot { background: #0CD126; }
+    .match-result.loss .match-result-dot { background: #E32020; }
     .match-result-label {
-      font-size: 12px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: 0.02em;
     }
-    .match-result.win  .match-result-label { color: #4CAF50; }
-    .match-result.loss .match-result-label { color: #E05A00; }
+    .match-result.win  .match-result-label { color: #0CD126; }
+    .match-result.loss .match-result-label { color: #E32020; }
 
     .match-meta {
       display: flex;
@@ -99,8 +99,8 @@
       gap: 2px;
       min-width: 72px;
     }
-    .match-date { font-size: 12px; color: #aaa; }
-    .match-duration { font-size: 11px; color: #888; }
+    .match-date { font-size: 20px; color: #aaa; }
+    .match-duration { font-size: 20px; color: #888; }
 
     .match-sets {
       display: flex;
@@ -111,12 +111,12 @@
     .match-sets-row {
       display: flex;
       gap: 14px;
-      font-size: 15px;
+      font-size: 34px;
       font-weight: 700;
       color: #fff;
       align-items: baseline;
     }
-    .match-sets-row sup { font-size: 9px; color: #bbb; }
+    .match-sets-row sup { font-size: 20px; color: #bbb; }
 
     /* ═══════════════════════════════════════
        WHO SERVES / CONFIRM screens (shared)
@@ -129,13 +129,13 @@
     }
 
     .dialog-label {
-      font-size: 13px;
+      font-size: 24px;
       color: #888;
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
     .dialog-question {
-      font-size: 26px;
+      font-size: 34px;
       font-weight: 700;
       color: #333;
       text-align: center;
@@ -220,7 +220,7 @@
       min-height: 80px;
     }
     .player-name {
-      font-size: 14px;
+      font-size: 24px;
       color: #aaa;
       font-weight: 500;
       letter-spacing: 0.02em;
@@ -229,7 +229,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 15px;
+      font-size: 24px;
       color: #fff;
       font-weight: 600;
     }
@@ -265,19 +265,19 @@
     .set-cell {
       flex: 1;
       text-align: center;
-      font-size: 19px;
+      font-size: 34px;
       font-weight: 700;
       color: #fff;
       position: relative;
       padding: 2px 0;
     }
     .set-cell sup {
-      font-size: 10px;
+      font-size: 20px;
       vertical-align: super;
       color: #bbb;
       font-weight: 500;
     }
-    .set-cell.current { color: #E05A00; }
+    .set-cell.current { color: #FFFFFF; }
     .set-cell + .set-cell {
       border-left: 1px solid #6E6E6E;
     }
