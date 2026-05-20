@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
+  <title>Tennis Score</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 600px;
+      height: 600px;
+      overflow: hidden;
+      background: #E0E0E0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      width: 600px;
+      height: 600px;
+      position: absolute;
+      top: 0; left: 0;
+      display: none;
+      flex-direction: column;
+    }
+    .screen.active { display: flex; }
+
+    /* ═══════════════════════════════════════
+       HOME SCREEN
+    ═══════════════════════════════════════ */
+    #screen-home {
+      padding: 28px 28px 20px;
+      gap: 14px;
+    }
+
+    .btn-new-match {
+      background: #5A5A5A;
+      border-radius: 16px;
+      padding: 20px 24px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      transition: border-color 0.1s;
+    }
+    .btn-new-match.focused { border-color: #E05A00; }
+
+    .match-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .match-item {
+      background: #5A5A5A;
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      transition: border-color 0.1s;
+    }
+    .match-item.focused { border-color: #E05A00; }
+
+    .match-result {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-width: 38px;
+    }
+    .match-result-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+    }
+    .match-result.win  .match-result-dot { background: #4CAF50; }
+    .match-result.loss .match-result-dot { background: #E05A00; }
+    .match-result-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .match-result.win  .match-result-label { color: #4CAF50; }
+    .match-result.loss .match-result-label { color: #E05A00; }
+
+    .match-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 72px;
+    }
+    .match-date { font-size: 12px; color: #aaa; }
+    .match-duration { font-size: 11px; color: #888; }
+
+    .match-sets {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .match-sets-row {
+      display: flex;
+      gap: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      align-items: baseline;
+    }
+    .match-sets-row sup { font-size: 9px; color: #bbb; }
+
+    /* ═══════════════════════════════════════
+       WHO SERVES / CONFIRM screens (shared)
+    ═══════════════════════════════════════ */
+    .dialog-screen {
+      justify-content: center;
+      align-items: center;
+      gap: 36px;
+      padding: 40px;
+    }
+
+    .dialog-label {
+      font-size: 13px;
+      color: #888;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .dialog-question {
+      font-size: 26px;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .dialog-buttons {
+      display: flex;
+      gap: 16px;
+    }
+    .dialog-btn {
+      background: #5A5A5A;
+      border-radius: 16px;
+      padding: 16px 40px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      border: 2px solid transparent;
+      transition: color 0.1s, border-color 0.1s;
+      min-width: 120px;
+      text-align: center;
+    }
+    .dialog-btn.focused {
+      color: #E05A00;
+      border-color: #5A5A5A;
+    }
+
+    /* ═══════════════════════════════════════
+       GAME SCREEN
+    ═══════════════════════════════════════ */
+    #screen-game {
+      padding: 28px 28px;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    /* Finished overlay banner */
+    .match-finished-banner {
+      background: #E05A00;
+      border-radius: 12px;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      display: none;
+    }
+    .match-finished-banner.visible { display: block; }
+
+    .player-row {
+      display: flex;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .score-box {
+      width: 120px;
+      height: 120px;
+      border-radius: 22px;
+      background: #E05A00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: -2px;
+      transition: font-size 0.1s;
+    }
+    .score-box.text-sm  { font-size: 40px; letter-spacing: -1px; }
+    .score-box.text-xs  { font-size: 32px; letter-spacing: 0; }
+
+    .player-info {
+      flex: 1;
+      background: #5A5A5A;
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+      min-height: 80px;
+    }
+    .player-name {
+      font-size: 14px;
+      color: #aaa;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .serve-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .serve-indicator.hidden { visibility: hidden; }
+    .serve-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: #E05A00;
+      flex-shrink: 0;
+    }
+
+    /* ── SETS AREA ── */
+    .sets-area {
+      background: #5A5A5A;
+      border-radius: 16px;
+      padding: 12px 18px;
+    }
+    .sets-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .sets-row {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+    }
+    .sets-divider {
+      height: 1px;
+      background: #6E6E6E;
+      margin: 4px 0;
+    }
+    .set-cell {
+      flex: 1;
+      text-align: center;
+      font-size: 19px;
+      font-weight: 700;
+      color: #fff;
+      position: relative;
+      padding: 2px 0;
+    }
+    .set-cell sup {
+      font-size: 10px;
+      vertical-align: super;
+      color: #bbb;
+      font-weight: 500;
+    }
+    .set-cell.current { color: #E05A00; }
+    .set-cell + .set-cell {
+      border-left: 1px solid #6E6E6E;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HOME SCREEN ═══ -->
+<div id="screen-home" class="screen active">
+  <div id="btn-new-match" class="btn-new-match focused">New match</div>
+  <div class="match-list" id="match-list"></div>
+</div>
+
+<!-- ═══ WHO SERVES ═══ -->
+<div id="screen-who-serves" class="screen dialog-screen">
+  <div class="dialog-label">New match</div>
+  <div class="dialog-question">Who's serving first?</div>
+  <div class="dialog-buttons">
+    <div id="ws-you"  class="dialog-btn focused">You</div>
+    <div id="ws-them" class="dialog-btn">Them</div>
+  </div>
+</div>
+
+<!-- ═══ GAME SCREEN ═══ -->
+<div id="screen-game" class="screen">
+  <div id="finished-banner" class="match-finished-banner"></div>
+
+  <!-- YOU row -->
+  <div class="player-row">
+    <div id="you-score" class="score-box">0</div>
+    <div class="player-info">
+      <div class="player-name">You</div>
+      <div id="you-serve" class="serve-indicator hidden">
+        <span class="serve-dot"></span>
+        <span id="you-serve-side">Right</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETS AREA -->
+  <div class="sets-area">
+    <div class="sets-grid">
+      <div id="sets-you-row"  class="sets-row"></div>
+      <div class="sets-divider"></div>
+      <div id="sets-them-row" class="sets-row"></div>
+    </div>
+  </div>
+
+  <!-- THEM row -->
+  <div class="player-row">
+    <div id="them-score" class="score-box">0</div>
+    <div class="player-info">
+      <div class="player-name">Them</div>
+      <div id="them-serve" class="serve-indicator hidden">
+        <span class="serve-dot"></span>
+        <span id="them-serve-side">Right</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM FINISH (ArrowRight) ═══ -->
+<div id="screen-confirm" class="screen dialog-screen">
+  <div class="dialog-label">Current match</div>
+  <div class="dialog-question">Finish the match?</div>
+  <div class="dialog-buttons">
+    <div id="cf-yes" class="dialog-btn">Yes</div>
+    <div id="cf-no"  class="dialog-btn focused">No</div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM CLOSE (Escape) ═══ -->
+<div id="screen-close" class="screen dialog-screen">
+  <div class="dialog-label">Current match</div>
+  <div class="dialog-question">Finish the match<br>and close?</div>
+  <div class="dialog-buttons">
+    <div id="cl-yes" class="dialog-btn">Yes</div>
+    <div id="cl-no"  class="dialog-btn focused">No</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const SETS_TO_WIN   = 3;   // best of 5
+const PT_LABELS     = ['0','15','30','40'];
+
+/* ═══════════════════════════════════════════
+   MATCH STATE
+═══════════════════════════════════════════ */
+let match        = null;
+let stateHistory = [];   // array of deep-copied match states for undo
+
+function freshMatch(firstServer) {
+  return {
+    server:      firstServer,   // 'you' | 'them'
+    serveSide:   'right',       // 'right' | 'left'
+
+    youPts:  0,  themPts:  0,   // points in current game (raw count)
+    youGames:0,  themGames:0,   // games in current set
+    youSets: 0,  themSets: 0,   // sets won
+
+    setsHistory: [],             // [{you, them, tb:{youPts,themPts}|null}]
+
+    isTB:    false,
+    tbYou:   0,  tbThem:  0,
+    tbCount: 0,                 // total points played in TB so far
+    tbFirstServer: firstServer, // who serves first point of TB
+
+    finished: false,
+    winner:   null,
+  };
+}
+
+/* ═══════════════════════════════════════════
+   TENNIS SCORING LOGIC
+═══════════════════════════════════════════ */
+
+function saveState() {
+  stateHistory.push(JSON.parse(JSON.stringify(match)));
+}
+
+function undo() {
+  if (stateHistory.length === 0) return;
+  match = stateHistory.pop();
+}
+
+// ── Point ────────────────────────────────
+function awardPoint(toYou) {
+  if (!match || match.finished) return;
+  saveState();
+  match.isTB ? awardTBPoint(toYou) : awardGamePoint(toYou);
+}
+
+function awardGamePoint(toYou) {
+  match.serveSide = match.serveSide === 'right' ? 'left' : 'right';
+  if (toYou) match.youPts++; else match.themPts++;
+
+  const y = match.youPts, t = match.themPts;
+  const youWin  = y >= 4 && y - t >= 2;
+  const themWin = t >= 4 && t - y >= 2;
+  if (youWin || themWin) endGame(youWin);
+}
+
+function endGame(youWon) {
+  match.youPts = 0; match.themPts = 0;
+  match.serveSide = 'right';
+  match.server    = opponent(match.server);
+  if (youWon) match.youGames++; else match.themGames++;
+  checkSet();
+}
+
+// ── Set ──────────────────────────────────
+function checkSet() {
+  const y = match.youGames, t = match.themGames;
+  if (y === 6 && t === 6) { startTB(); return; }
+  const youWin  = y >= 6 && y - t >= 2;
+  const themWin = t >= 6 && t - y >= 2;
+  if (youWin || themWin) endSet(youWin, null);
+}
+
+function endSet(youWon, tb) {
+  match.setsHistory.push({ you: match.youGames, them: match.themGames, tb });
+  match.youGames = 0; match.themGames = 0;
+  match.youPts   = 0; match.themPts   = 0;
+  match.serveSide = 'right';
+  if (youWon) match.youSets++; else match.themSets++;
+
+  if (match.youSets >= SETS_TO_WIN || match.themSets >= SETS_TO_WIN) {
+    match.finished = true;
+    match.winner   = match.youSets >= SETS_TO_WIN ? 'you' : 'them';
+    persistMatch();
+  }
+}
+
+// ── Tie-break ────────────────────────────
+function startTB() {
+  match.isTB          = true;
+  match.tbYou         = 0;
+  match.tbThem        = 0;
+  match.tbCount       = 0;
+  match.tbFirstServer = match.server;
+  match.serveSide     = 'right';
+}
+
+// Serve rotation: 1, 2, 2, 2, … (first server gets 1 then alternates every 2)
+function tbCurrentServer(firstSrv, count) {
+  if (count === 0) return firstSrv;
+  const adj   = count - 1;          // after the first point
+  const block = Math.floor(adj / 2);
+  return block % 2 === 0 ? opponent(firstSrv) : firstSrv;
+}
+
+function awardTBPoint(toYou) {
+  // Set server for THIS point before incrementing
+  match.server   = tbCurrentServer(match.tbFirstServer, match.tbCount);
+  match.serveSide = match.serveSide === 'right' ? 'left' : 'right';
+
+  if (toYou) match.tbYou++; else match.tbThem++;
+  match.tbCount++;
+
+  // Update server for NEXT point
+  match.server = tbCurrentServer(match.tbFirstServer, match.tbCount);
+
+  const y = match.tbYou, t = match.tbThem;
+  const youWin  = y >= 7 && y - t >= 2;
+  const themWin = t >= 7 && t - y >= 2;
+
+  if (youWin || themWin) {
+    const tb = { youPts: match.tbYou, themPts: match.tbThem };
+    // Winner of TB served first next set (player who did NOT serve first in TB)
+    match.server = opponent(match.tbFirstServer);
+    match.isTB   = false;
+    if (youWin) match.youGames++; else match.themGames++;
+    endSet(youWin, tb);
+  }
+}
+
+// ── Helpers ──────────────────────────────
+function opponent(p) { return p === 'you' ? 'them' : 'you'; }
+
+function pointDisplay() {
+  const y = match.youPts, t = match.themPts;
+  if (y >= 3 && t >= 3) {
+    if (y === t)     return { you: '40', them: '40' };
+    if (y > t)       return { you: 'A',  them: '40' };
+    return                  { you: '40', them: 'A'  };
+  }
+  return { you: PT_LABELS[Math.min(y,3)], them: PT_LABELS[Math.min(t,3)] };
+}
+
+/* ═══════════════════════════════════════════
+   MATCH HISTORY (localStorage)
+═══════════════════════════════════════════ */
+let matchHistory = [];
+try { matchHistory = JSON.parse(localStorage.getItem('tennis_v1') || '[]'); } catch(_) {}
+
+function persistMatch() {
+  if (!match) return;
+  const rec = {
+    ts:       Date.now(),
+    winner:   match.winner,
+    youSets:  match.youSets,
+    themSets: match.themSets,
+    sets:     match.setsHistory,
+  };
+  matchHistory.unshift(rec);
+  if (matchHistory.length > 20) matchHistory.length = 20;
+  try { localStorage.setItem('tennis_v1', JSON.stringify(matchHistory)); } catch(_) {}
+}
+
+function saveAndExit() {
+  if (!match || match.finished) return;
+  // Save as unfinished — winner is whoever leads in sets
+  const y = match.youSets, t = match.themSets;
+  match.winner = y > t ? 'you' : t > y ? 'them' : null;
+  match.finished = true;
+  persistMatch();
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION STATE
+═══════════════════════════════════════════ */
+let screen      = 'home';
+let homeFocus   = 0;      // 0=newMatch, 1..n=list items
+let wsChoice    = 'you';  // who-serves choice
+let cfFocus     = 'no';   // confirm-finish focus
+let clFocus     = 'no';   // confirm-close focus
+
+/* ═══════════════════════════════════════════
+   RENDERING
+═══════════════════════════════════════════ */
+
+// ── Home ─────────────────────────────────
+function renderHome() {
+  updateHomeFocus();
+  const list = document.getElementById('match-list');
+  list.innerHTML = '';
+
+  matchHistory.slice(0, 5).forEach((rec, idx) => {
+    const item    = document.createElement('div');
+    item.className = 'match-item' + (homeFocus === idx + 1 ? ' focused' : '');
+
+    const isWin   = rec.winner === 'you';
+    const resClass = isWin ? 'win' : 'loss';
+    const resLabel = isWin ? 'Win' : 'Loss';
+
+    const date    = new Date(rec.ts);
+    const dateStr = fmtDate(date);
+
+    // Build sets rows
+    const youCells  = rec.sets.map(s => {
+      const sup = s.tb ? (s.you > s.them ? `<sup>${s.tb.themPts}</sup>` : '') : '';
+      return `${s.you}${sup}`;
+    });
+    const themCells = rec.sets.map(s => {
+      const sup = s.tb ? (s.them > s.you ? `<sup>${s.tb.youPts}</sup>` : '') : '';
+      return `${s.them}${sup}`;
+    });
+
+    item.innerHTML = `
+      <div class="match-result ${resClass}">
+        <div class="match-result-dot"></div>
+        <div class="match-result-label">${resLabel}</div>
+      </div>
+      <div class="match-meta">
+        <div class="match-date">${dateStr}</div>
+      </div>
+      <div class="match-sets">
+        <div class="match-sets-row">
+          <span>${rec.youSets}</span>
+          ${youCells.map(c => `<span>${c}</span>`).join('')}
+        </div>
+        <div class="match-sets-row">
+          <span>${rec.themSets}</span>
+          ${themCells.map(c => `<span>${c}</span>`).join('')}
+        </div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+function updateHomeFocus() {
+  document.getElementById('btn-new-match').classList.toggle('focused', homeFocus === 0);
+  document.querySelectorAll('.match-item').forEach((el, i) => {
+    el.classList.toggle('focused', homeFocus === i + 1);
+  });
+}
+
+function fmtDate(d) {
+  const now  = new Date();
+  const diff = Math.floor((now - d) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'2-digit' });
+}
+
+// ── Who serves ───────────────────────────
+function renderWhoServes() {
+  document.getElementById('ws-you') .classList.toggle('focused', wsChoice === 'you');
+  document.getElementById('ws-them').classList.toggle('focused', wsChoice === 'them');
+}
+
+// ── Game ─────────────────────────────────
+function renderGame() {
+  if (!match) return;
+
+  // Finished banner
+  const banner = document.getElementById('finished-banner');
+  if (match.finished) {
+    banner.classList.add('visible');
+    banner.textContent = match.winner === 'you'
+      ? '🏆 You won the match!'
+      : '🎾 They won the match';
+  } else {
+    banner.classList.remove('visible');
+  }
+
+  // Score boxes
+  let youText, themText;
+  if (match.isTB) {
+    youText  = String(match.tbYou);
+    themText = String(match.tbThem);
+  } else {
+    const d = pointDisplay();
+    youText  = d.you;
+    themText = d.them;
+  }
+  setScoreBox('you-score',  youText);
+  setScoreBox('them-score', themText);
+
+  // Serve indicators
+  const srv      = match.server;
+  const side     = match.serveSide === 'right' ? 'Right' : 'Left';
+  const youServe = document.getElementById('you-serve');
+  const themServe= document.getElementById('them-serve');
+  youServe.classList.toggle('hidden', srv !== 'you');
+  themServe.classList.toggle('hidden', srv !== 'them');
+  document.getElementById('you-serve-side').textContent  = side;
+  document.getElementById('them-serve-side').textContent = side;
+
+  // Sets area
+  renderSets();
+}
+
+function setScoreBox(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'score-box';
+  if (text.length >= 3) el.classList.add('text-sm');   // '40', 'ADV' etc
+  if (text.length >= 4) el.classList.add('text-xs');
+}
+
+function renderSets() {
+  const youRow  = document.getElementById('sets-you-row');
+  const themRow = document.getElementById('sets-them-row');
+  youRow.innerHTML  = '';
+  themRow.innerHTML = '';
+
+  // Completed sets
+  match.setsHistory.forEach(s => {
+    const yWon = s.you > s.them;
+    const yEl  = document.createElement('div');
+    yEl.className = 'set-cell';
+    yEl.innerHTML = s.you + (s.tb && yWon  ? `<sup>${s.tb.themPts}</sup>` : '');
+
+    const tEl  = document.createElement('div');
+    tEl.className = 'set-cell';
+    tEl.innerHTML = s.them + (s.tb && !yWon ? `<sup>${s.tb.youPts}</sup>` : '');
+
+    youRow.appendChild(yEl);
+    themRow.appendChild(tEl);
+  });
+
+  // Current set games (always show, even 0:0)
+  const yC = document.createElement('div');
+  yC.className = 'set-cell current';
+  yC.textContent = match.youGames;
+
+  const tC = document.createElement('div');
+  tC.className = 'set-cell current';
+  tC.textContent = match.themGames;
+
+  youRow.appendChild(yC);
+  themRow.appendChild(tC);
+}
+
+// ── Confirm dialogs ───────────────────────
+function renderConfirm() {
+  document.getElementById('cf-yes').classList.toggle('focused', cfFocus === 'yes');
+  document.getElementById('cf-no') .classList.toggle('focused', cfFocus === 'no');
+}
+function renderClose() {
+  document.getElementById('cl-yes').classList.toggle('focused', clFocus === 'yes');
+  document.getElementById('cl-no') .classList.toggle('focused', clFocus === 'no');
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN TRANSITIONS
+═══════════════════════════════════════════ */
+const SCREEN_IDS = {
+  home:    'screen-home',
+  who:     'screen-who-serves',
+  game:    'screen-game',
+  confirm: 'screen-confirm',
+  close:   'screen-close',
+};
+
+function goTo(name) {
+  screen = name;
+  Object.entries(SCREEN_IDS).forEach(([k, id]) => {
+    document.getElementById(id).classList.toggle('active', k === name);
+  });
+
+  if (name === 'home')    { homeFocus = 0; renderHome(); }
+  if (name === 'who')     { wsChoice = 'you'; renderWhoServes(); }
+  if (name === 'game')    { renderGame(); }
+  if (name === 'confirm') { cfFocus = 'no'; renderConfirm(); }
+  if (name === 'close')   { clFocus = 'no'; renderClose(); }
+}
+
+/* ═══════════════════════════════════════════
+   INPUT HANDLING
+═══════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  handleKey(e.key);
+  e.preventDefault();
+});
+
+function handleKey(key) {
+  switch (screen) {
+    case 'home':    return onHome(key);
+    case 'who':     return onWho(key);
+    case 'game':    return onGame(key);
+    case 'confirm': return onConfirm(key);
+    case 'close':   return onClose(key);
+  }
+}
+
+// ── Home ─────────────────────────────────
+function onHome(key) {
+  const maxIdx = Math.min(matchHistory.length, 5);
+  if (key === 'ArrowUp')   { homeFocus = Math.max(0, homeFocus - 1); renderHome(); }
+  if (key === 'ArrowDown') { homeFocus = Math.min(maxIdx, homeFocus + 1); renderHome(); }
+  if (key === 'Enter' && homeFocus === 0) goTo('who');
+}
+
+// ── Who serves ───────────────────────────
+function onWho(key) {
+  if (key === 'ArrowLeft')  { wsChoice = 'you';  renderWhoServes(); }
+  if (key === 'ArrowRight') { wsChoice = 'them'; renderWhoServes(); }
+  if (key === 'Enter') {
+    match        = freshMatch(wsChoice);
+    stateHistory = [];
+    goTo('game');
+  }
+  if (key === 'Escape') goTo('home');
+}
+
+// ── Game ─────────────────────────────────
+function onGame(key) {
+  if (match.finished) {
+    if (key === 'Enter' || key === 'Escape') goTo('home');
+    return;
+  }
+  if (key === 'ArrowUp')    { awardPoint(true);  renderGame(); }
+  if (key === 'ArrowDown')  { awardPoint(false); renderGame(); }
+  if (key === 'ArrowLeft')  { undo();             renderGame(); }
+  if (key === 'ArrowRight') goTo('confirm');
+  if (key === 'Escape')     goTo('close');
+}
+
+// ── Confirm finish ───────────────────────
+function onConfirm(key) {
+  if (key === 'ArrowLeft')  { cfFocus = 'yes'; renderConfirm(); }
+  if (key === 'ArrowRight') { cfFocus = 'no';  renderConfirm(); }
+  if (key === 'Escape')     goTo('game');
+  if (key === 'Enter') {
+    if (cfFocus === 'yes') { saveAndExit(); goTo('home'); }
+    else goTo('game');
+  }
+}
+
+// ── Confirm close ────────────────────────
+function onClose(key) {
+  if (key === 'ArrowLeft')  { clFocus = 'yes'; renderClose(); }
+  if (key === 'ArrowRight') { clFocus = 'no';  renderClose(); }
+  if (key === 'Enter') {
+    if (clFocus === 'yes') { saveAndExit(); goTo('home'); }
+    else goTo('game');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+goTo('home');
+</script>
+</body>
+</html>
