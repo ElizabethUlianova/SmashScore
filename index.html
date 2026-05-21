@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
   <title>Tennis Score</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,10 +15,29 @@
       height: 600px;
       overflow: hidden;
       background: #000000;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Mukta', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       color: #fff;
       user-select: none;
       -webkit-user-select: none;
+    }
+
+    /* ── GLASS MIXIN ── */
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-orange {
+      background: rgba(224, 90, 0, 0.55);
+      backdrop-filter: blur(16px) saturate(1.5);
+      -webkit-backdrop-filter: blur(16px) saturate(1.5);
+      border: 1px solid rgba(255, 130, 60, 0.30);
+      box-shadow: 0 4px 24px rgba(224, 90, 0, 0.25),
+                  inset 0 1px 0 rgba(255, 160, 80, 0.15);
     }
 
     /* ── SCREENS ── */
@@ -35,23 +57,32 @@
     #screen-home {
       padding: 28px 28px 20px;
       gap: 14px;
+      align-items: center;
     }
 
     .btn-new-match {
-      background: #5A5A5A;
+      width: 394px;
       border-radius: 16px;
       padding: 20px 24px;
       font-size: 28px;
       font-weight: 400;
+      font-family: 'Mukta', sans-serif;
       color: #fff;
       text-align: center;
-      border: 2px solid transparent;
+      border: 2px solid rgba(255, 255, 255, 0.14);
       flex-shrink: 0;
-      transition: border-color 0.1s;
+      transition: border-color 0.15s;
+      /* glass */
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .btn-new-match.focused { border-color: #E05A00; }
 
     .match-list {
+      width: 394px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -60,35 +91,50 @@
     }
 
     .match-item {
-      background: #5A5A5A;
+      width: 394px;
       border-radius: 14px;
-      padding: 12px 16px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       gap: 14px;
-      border: 2px solid transparent;
+      border: 2px solid rgba(255, 255, 255, 0.14);
       flex-shrink: 0;
-      transition: border-color 0.1s;
+      transition: border-color 0.15s;
+      /* glass */
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .match-item.focused { border-color: #E05A00; }
+
+    /* match-result + match-meta stacked vertically */
+    .match-info-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      flex-shrink: 0;
+    }
 
     .match-result {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 3px;
-      min-width: 38px;
+      gap: 5px;
     }
-    .match-result-dot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
+    .match-result-icon {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      flex-shrink: 0;
     }
-    .match-result.win  .match-result-dot { background: #0CD126; }
-    .match-result.loss .match-result-dot { background: #E32020; }
     .match-result-label {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 400;
-      letter-spacing: 0.02em;
+      font-family: 'Mukta', sans-serif;
+      line-height: 1;
     }
     .match-result.win  .match-result-label { color: #0CD126; }
     .match-result.loss .match-result-label { color: #E32020; }
@@ -96,11 +142,10 @@
     .match-meta {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      min-width: 72px;
+      gap: 1px;
     }
-    .match-date { font-size: 20px; color: #aaa; }
-    .match-duration { font-size: 20px; color: #888; }
+    .match-date     { font-size: 18px; color: #aaa; line-height: 1; }
+    .match-duration { font-size: 16px; color: #888; line-height: 1; }
 
     .match-sets {
       display: flex;
@@ -110,13 +155,14 @@
     }
     .match-sets-row {
       display: flex;
-      gap: 14px;
-      font-size: 34px;
+      gap: 12px;
+      font-size: 30px;
       font-weight: 400;
+      font-family: 'Mukta', sans-serif;
       color: #fff;
       align-items: baseline;
     }
-    .match-sets-row sup { font-size: 20px; color: #bbb; }
+    .match-sets-row sup { font-size: 16px; color: #bbb; }
 
     /* ═══════════════════════════════════════
        WHO SERVES / CONFIRM screens (shared)
@@ -124,12 +170,13 @@
     .dialog-screen {
       justify-content: center;
       align-items: center;
-      gap: 36px;
       padding: 40px;
+      /* gaps set via margin-top on children */
     }
 
     .dialog-label {
       font-size: 24px;
+      font-family: 'Mukta', sans-serif;
       color: #888;
       letter-spacing: 0.05em;
       text-transform: uppercase;
@@ -137,50 +184,70 @@
     .dialog-question {
       font-size: 34px;
       font-weight: 400;
-      color: #FFFFFF;
+      font-family: 'Mukta', sans-serif;
+      color: #fff;
       text-align: center;
       line-height: 1.2;
+      margin-top: 4px;
     }
     .dialog-buttons {
       display: flex;
       gap: 16px;
+      margin-top: 24px;
+      /* glass on container */
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px) saturate(1.6);
+      -webkit-backdrop-filter: blur(16px) saturate(1.6);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 20px;
+      padding: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .dialog-btn {
-      background: #5A5A5A;
-      border-radius: 16px;
-      padding: 16px 40px;
-      font-size: 20px;
+      border-radius: 14px;
+      padding: 14px 36px;
+      font-size: 24px;
       font-weight: 400;
+      font-family: 'Mukta', sans-serif;
       color: #fff;
-      border: 2px solid transparent;
-      transition: color 0.1s, border-color 0.1s;
-      min-width: 120px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: color 0.12s, border-color 0.12s;
+      min-width: 110px;
       text-align: center;
+      /* glass */
+      background: rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     .dialog-btn.focused {
       color: #E05A00;
-      border-color: #5A5A5A;
+      border-color: rgba(224, 90, 0, 0.6);
     }
 
     /* ═══════════════════════════════════════
        GAME SCREEN
     ═══════════════════════════════════════ */
     #screen-game {
-      padding: 28px 28px;
+      padding: 24px 28px;
       justify-content: center;
-      gap: 18px;
+      align-items: center;
+      gap: 16px;
     }
 
-    /* Finished overlay banner */
     .match-finished-banner {
-      background: #E05A00;
+      background: rgba(224, 90, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 130, 60, 0.4);
       border-radius: 12px;
-      padding: 10px 16px;
+      padding: 10px 20px;
       text-align: center;
       font-size: 17px;
-      font-weight: 400;
+      font-weight: 600;
+      font-family: 'Mukta', sans-serif;
       letter-spacing: 0.03em;
       display: none;
+      width: 294px;
     }
     .match-finished-banner.visible { display: block; }
 
@@ -188,66 +255,93 @@
       display: flex;
       gap: 14px;
       align-items: stretch;
+      width: fit-content;
     }
 
     .score-box {
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      height: 140px;
       border-radius: 22px;
-      background: #E05A00;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 56px;
-      font-weight: 400;
+      font-size: 60px;
+      font-weight: 700;
+      font-family: 'Mukta', sans-serif;
       color: #fff;
       flex-shrink: 0;
       letter-spacing: -2px;
-      transition: font-size 0.1s;
+      /* glass orange */
+      background: rgba(224, 90, 0, 0.55);
+      backdrop-filter: blur(16px) saturate(1.5);
+      -webkit-backdrop-filter: blur(16px) saturate(1.5);
+      border: 1px solid rgba(255, 130, 60, 0.30);
+      box-shadow: 0 4px 24px rgba(224, 90, 0, 0.25),
+                  inset 0 1px 0 rgba(255, 160, 80, 0.15);
     }
-    .score-box.text-sm  { font-size: 40px; letter-spacing: -1px; }
-    .score-box.text-xs  { font-size: 32px; letter-spacing: 0; }
+    .score-box.text-sm { font-size: 44px; letter-spacing: -1px; }
+    .score-box.text-xs { font-size: 34px; letter-spacing: 0; }
 
     .player-info {
-      flex: 1;
-      background: #5A5A5A;
+      width: 140px;
+      height: 140px;
+      flex-shrink: 0;
       border-radius: 18px;
-      padding: 14px 18px;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
       gap: 8px;
       justify-content: center;
-      min-height: 80px;
+      /* glass */
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .player-name {
-      font-size: 24px;
-      color: #aaa;
+      font-size: 22px;
+      color: rgba(255, 255, 255, 0.55);
       font-weight: 400;
-      letter-spacing: 0.02em;
+      font-family: 'Mukta', sans-serif;
     }
     .serve-indicator {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 24px;
+      gap: 7px;
+      font-size: 22px;
+      font-family: 'Mukta', sans-serif;
       color: #fff;
       font-weight: 400;
     }
     .serve-indicator.hidden { visibility: hidden; }
-    .serve-dot {
-      width: 11px; height: 11px;
-      border-radius: 50%;
-      background: #E05A00;
+    .serve-ball {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
       flex-shrink: 0;
     }
 
     /* ── SETS AREA ── */
     .sets-area {
-      background: #5A5A5A;
+      width: 288px;
+      height: 132px;
       border-radius: 16px;
-      padding: 12px 18px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* glass */
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .sets-grid {
+      width: 100%;
       display: flex;
       flex-direction: column;
       gap: 0;
@@ -255,31 +349,36 @@
     .sets-row {
       display: flex;
       align-items: center;
-      min-height: 28px;
+      min-height: 30px;
     }
     .sets-divider {
       height: 1px;
-      background: #6E6E6E;
-      margin: 4px 0;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 3px 0;
     }
     .set-cell {
       flex: 1;
       text-align: center;
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 400;
-      color: #fff;
+      font-family: 'Mukta', sans-serif;
+      padding: 0;
       position: relative;
-      padding: 2px 0;
     }
     .set-cell sup {
-      font-size: 20px;
+      font-size: 16px;
       vertical-align: super;
-      color: #bbb;
       font-weight: 400;
     }
-    .set-cell.current { color: #FFFFFF; }
+    /* current set = bright white */
+    .set-cell.current { color: #fff; }
+    /* completed set winner = bright white */
+    .set-cell.won  { color: #fff; }
+    /* completed set loser = dimmed */
+    .set-cell.lost { color: rgba(255, 255, 255, 0.38); }
+
     .set-cell + .set-cell {
-      border-left: 1px solid #6E6E6E;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
     }
   </style>
 </head>
@@ -311,7 +410,7 @@
     <div class="player-info">
       <div class="player-name">You</div>
       <div id="you-serve" class="serve-indicator hidden">
-        <span class="serve-dot"></span>
+        <img src="icons/tennis ball icon.png" class="serve-ball" alt="">
         <span id="you-serve-side">Right</span>
       </div>
     </div>
@@ -332,7 +431,7 @@
     <div class="player-info">
       <div class="player-name">Them</div>
       <div id="them-serve" class="serve-indicator hidden">
-        <span class="serve-dot"></span>
+        <img src="icons/tennis ball icon.png" class="serve-ball" alt="">
         <span id="them-serve-side">Right</span>
       </div>
     </div>
@@ -365,50 +464,43 @@
 /* ═══════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════ */
-const SETS_TO_WIN   = 3;   // best of 5
-const PT_LABELS     = ['0','15','30','40'];
+const SETS_TO_WIN = 3;
+const PT_LABELS   = ['0','15','30','40'];
 
 /* ═══════════════════════════════════════════
    MATCH STATE
 ═══════════════════════════════════════════ */
 let match        = null;
-let stateHistory = [];   // array of deep-copied match states for undo
+let stateHistory = [];
 
 function freshMatch(firstServer) {
   return {
-    server:      firstServer,   // 'you' | 'them'
-    serveSide:   'right',       // 'right' | 'left'
-
-    youPts:  0,  themPts:  0,   // points in current game (raw count)
-    youGames:0,  themGames:0,   // games in current set
-    youSets: 0,  themSets: 0,   // sets won
-
-    setsHistory: [],             // [{you, them, tb:{youPts,themPts}|null}]
-
-    isTB:    false,
-    tbYou:   0,  tbThem:  0,
-    tbCount: 0,                 // total points played in TB so far
-    tbFirstServer: firstServer, // who serves first point of TB
-
-    finished: false,
-    winner:   null,
+    server:        firstServer,
+    serveSide:     'right',
+    youPts:  0,    themPts:  0,
+    youGames:0,    themGames:0,
+    youSets: 0,    themSets: 0,
+    setsHistory:   [],
+    isTB:          false,
+    tbYou:   0,    tbThem:  0,
+    tbCount: 0,
+    tbFirstServer: firstServer,
+    finished:      false,
+    winner:        null,
   };
 }
 
 /* ═══════════════════════════════════════════
    TENNIS SCORING LOGIC
 ═══════════════════════════════════════════ */
-
 function saveState() {
   stateHistory.push(JSON.parse(JSON.stringify(match)));
 }
-
 function undo() {
   if (stateHistory.length === 0) return;
   match = stateHistory.pop();
 }
 
-// ── Point ────────────────────────────────
 function awardPoint(toYou) {
   if (!match || match.finished) return;
   saveState();
@@ -418,28 +510,24 @@ function awardPoint(toYou) {
 function awardGamePoint(toYou) {
   match.serveSide = match.serveSide === 'right' ? 'left' : 'right';
   if (toYou) match.youPts++; else match.themPts++;
-
   const y = match.youPts, t = match.themPts;
-  const youWin  = y >= 4 && y - t >= 2;
-  const themWin = t >= 4 && t - y >= 2;
-  if (youWin || themWin) endGame(youWin);
+  if (y >= 4 && y - t >= 2) endGame(true);
+  else if (t >= 4 && t - y >= 2) endGame(false);
 }
 
 function endGame(youWon) {
   match.youPts = 0; match.themPts = 0;
   match.serveSide = 'right';
-  match.server    = opponent(match.server);
+  match.server = opponent(match.server);
   if (youWon) match.youGames++; else match.themGames++;
   checkSet();
 }
 
-// ── Set ──────────────────────────────────
 function checkSet() {
   const y = match.youGames, t = match.themGames;
   if (y === 6 && t === 6) { startTB(); return; }
-  const youWin  = y >= 6 && y - t >= 2;
-  const themWin = t >= 6 && t - y >= 2;
-  if (youWin || themWin) endSet(youWin, null);
+  if (y >= 6 && y - t >= 2) endSet(true,  null);
+  else if (t >= 6 && t - y >= 2) endSet(false, null);
 }
 
 function endSet(youWon, tb) {
@@ -448,7 +536,6 @@ function endSet(youWon, tb) {
   match.youPts   = 0; match.themPts   = 0;
   match.serveSide = 'right';
   if (youWon) match.youSets++; else match.themSets++;
-
   if (match.youSets >= SETS_TO_WIN || match.themSets >= SETS_TO_WIN) {
     match.finished = true;
     match.winner   = match.youSets >= SETS_TO_WIN ? 'you' : 'them';
@@ -456,87 +543,71 @@ function endSet(youWon, tb) {
   }
 }
 
-// ── Tie-break ────────────────────────────
 function startTB() {
-  match.isTB          = true;
-  match.tbYou         = 0;
-  match.tbThem        = 0;
-  match.tbCount       = 0;
+  match.isTB = true;
+  match.tbYou = 0; match.tbThem = 0;
+  match.tbCount = 0;
   match.tbFirstServer = match.server;
-  match.serveSide     = 'right';
+  match.serveSide = 'right';
 }
 
-// Serve rotation: 1, 2, 2, 2, … (first server gets 1 then alternates every 2)
 function tbCurrentServer(firstSrv, count) {
   if (count === 0) return firstSrv;
-  const adj   = count - 1;          // after the first point
-  const block = Math.floor(adj / 2);
+  const block = Math.floor((count - 1) / 2);
   return block % 2 === 0 ? opponent(firstSrv) : firstSrv;
 }
 
 function awardTBPoint(toYou) {
-  // Set server for THIS point before incrementing
-  match.server   = tbCurrentServer(match.tbFirstServer, match.tbCount);
+  match.server    = tbCurrentServer(match.tbFirstServer, match.tbCount);
   match.serveSide = match.serveSide === 'right' ? 'left' : 'right';
-
   if (toYou) match.tbYou++; else match.tbThem++;
   match.tbCount++;
-
-  // Update server for NEXT point
   match.server = tbCurrentServer(match.tbFirstServer, match.tbCount);
 
   const y = match.tbYou, t = match.tbThem;
-  const youWin  = y >= 7 && y - t >= 2;
-  const themWin = t >= 7 && t - y >= 2;
-
-  if (youWin || themWin) {
+  if ((y >= 7 || t >= 7) && Math.abs(y - t) >= 2) {
+    const youWon = y > t;
     const tb = { youPts: match.tbYou, themPts: match.tbThem };
-    // Winner of TB served first next set (player who did NOT serve first in TB)
     match.server = opponent(match.tbFirstServer);
     match.isTB   = false;
-    if (youWin) match.youGames++; else match.themGames++;
-    endSet(youWin, tb);
+    if (youWon) match.youGames++; else match.themGames++;
+    endSet(youWon, tb);
   }
 }
 
-// ── Helpers ──────────────────────────────
 function opponent(p) { return p === 'you' ? 'them' : 'you'; }
 
 function pointDisplay() {
   const y = match.youPts, t = match.themPts;
   if (y >= 3 && t >= 3) {
-    if (y === t)     return { you: '40', them: '40' };
-    if (y > t)       return { you: 'A',  them: '40' };
-    return                  { you: '40', them: 'A'  };
+    if (y === t) return { you: '40', them: '40' };
+    if (y > t)   return { you: 'A',  them: '40' };
+    return               { you: '40', them: 'A'  };
   }
   return { you: PT_LABELS[Math.min(y,3)], them: PT_LABELS[Math.min(t,3)] };
 }
 
 /* ═══════════════════════════════════════════
-   MATCH HISTORY (localStorage)
+   MATCH HISTORY
 ═══════════════════════════════════════════ */
 let matchHistory = [];
 try { matchHistory = JSON.parse(localStorage.getItem('tennis_v1') || '[]'); } catch(_) {}
 
 function persistMatch() {
   if (!match) return;
-  const rec = {
-    ts:       Date.now(),
-    winner:   match.winner,
-    youSets:  match.youSets,
-    themSets: match.themSets,
-    sets:     match.setsHistory,
-  };
-  matchHistory.unshift(rec);
+  matchHistory.unshift({
+    ts: Date.now(), winner: match.winner,
+    youSets: match.youSets, themSets: match.themSets,
+    sets: match.setsHistory,
+  });
   if (matchHistory.length > 20) matchHistory.length = 20;
   try { localStorage.setItem('tennis_v1', JSON.stringify(matchHistory)); } catch(_) {}
 }
 
 function saveAndExit() {
   if (!match || match.finished) return;
-  // Save as unfinished — winner is whoever leads in sets
   const y = match.youSets, t = match.themSets;
-  match.winner = y > t ? 'you' : t > y ? 'them' : null;
+  match.winner   = y > t ? 'you' : t > y ? 'them' : null;
   match.finished = true;
   persistMatch();
 }
@@ -544,11 +615,11 @@ function saveAndExit() {
 /* ═══════════════════════════════════════════
    NAVIGATION STATE
 ═══════════════════════════════════════════ */
-let screen      = 'home';
-let homeFocus   = 0;      // 0=newMatch, 1..n=list items
-let wsChoice    = 'you';  // who-serves choice
-let cfFocus     = 'no';   // confirm-finish focus
-let clFocus     = 'no';   // confirm-close focus
+let screen    = 'home';
+let homeFocus = 0;
+let wsChoice  = 'you';
+let cfFocus   = 'no';
+let clFocus   = 'no';
 
 /* ═══════════════════════════════════════════
    RENDERING
@@ -561,33 +632,35 @@ function renderHome() {
   list.innerHTML = '';
 
   matchHistory.slice(0, 5).forEach((rec, idx) => {
-    const item    = document.createElement('div');
+    const item     = document.createElement('div');
     item.className = 'match-item' + (homeFocus === idx + 1 ? ' focused' : '');
 
-    const isWin   = rec.winner === 'you';
+    const isWin    = rec.winner === 'you';
     const resClass = isWin ? 'win' : 'loss';
     const resLabel = isWin ? 'Win' : 'Loss';
+    const iconSrc  = isWin
+      ? 'icons/icon result win.png'
+      : 'icons/icon result loss.png';
+    const dateStr  = fmtDate(new Date(rec.ts));
 
-    const date    = new Date(rec.ts);
-    const dateStr = fmtDate(date);
-
-    // Build sets rows
     const youCells  = rec.sets.map(s => {
-      const sup = s.tb ? (s.you > s.them ? `<sup>${s.tb.themPts}</sup>` : '') : '';
+      const sup = s.tb && s.you > s.them ? `<sup>${s.tb.themPts}</sup>` : '';
       return `${s.you}${sup}`;
     });
     const themCells = rec.sets.map(s => {
-      const sup = s.tb ? (s.them > s.you ? `<sup>${s.tb.youPts}</sup>` : '') : '';
+      const sup = s.tb && s.them > s.you ? `<sup>${s.tb.youPts}</sup>` : '';
       return `${s.them}${sup}`;
     });
 
     item.innerHTML = `
-      <div class="match-result ${resClass}">
-        <div class="match-result-dot"></div>
-        <div class="match-result-label">${resLabel}</div>
-      </div>
-      <div class="match-meta">
-        <div class="match-date">${dateStr}</div>
+      <div class="match-info-col">
+        <div class="match-result ${resClass}">
+          <img src="${iconSrc}" class="match-result-icon" alt="${resLabel}">
+          <div class="match-result-label">${resLabel}</div>
+        </div>
+        <div class="match-meta">
+          <div class="match-date">${dateStr}</div>
+        </div>
       </div>
       <div class="match-sets">
         <div class="match-sets-row">
@@ -611,8 +684,7 @@ function updateHomeFocus() {
 }
 
 function fmtDate(d) {
-  const now  = new Date();
-  const diff = Math.floor((now - d) / 86400000);
+  const diff = Math.floor((Date.now() - d) / 86400000);
   if (diff === 0) return 'Today';
   if (diff === 1) return 'Yesterday';
   return d.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'2-digit' });
@@ -628,7 +700,6 @@ function renderWhoServes() {
 function renderGame() {
   if (!match) return;
 
-  // Finished banner
   const banner = document.getElementById('finished-banner');
   if (match.finished) {
     banner.classList.add('visible');
@@ -639,7 +710,6 @@ function renderGame() {
     banner.classList.remove('visible');
   }
 
-  // Score boxes
   let youText, themText;
   if (match.isTB) {
     youText  = String(match.tbYou);
@@ -652,17 +722,15 @@ function renderGame() {
   setScoreBox('you-score',  youText);
   setScoreBox('them-score', themText);
 
-  // Serve indicators
-  const srv      = match.server;
-  const side     = match.serveSide === 'right' ? 'Right' : 'Left';
-  const youServe = document.getElementById('you-serve');
-  const themServe= document.getElementById('them-serve');
-  youServe.classList.toggle('hidden', srv !== 'you');
+  const srv       = match.server;
+  const side      = match.serveSide === 'right' ? 'Right' : 'Left';
+  const youServe  = document.getElementById('you-serve');
+  const themServe = document.getElementById('them-serve');
+  youServe.classList.toggle('hidden',  srv !== 'you');
   themServe.classList.toggle('hidden', srv !== 'them');
   document.getElementById('you-serve-side').textContent  = side;
   document.getElementById('them-serve-side').textContent = side;
 
-  // Sets area
   renderSets();
 }
 
@@ -670,8 +738,8 @@ function setScoreBox(id, text) {
   const el = document.getElementById(id);
   el.textContent = text;
   el.className = 'score-box';
-  if (text.length >= 3) el.classList.add('text-sm');   // '40', 'ADV' etc
-  if (text.length >= 4) el.classList.add('text-xs');
+  if (text.length >= 2) el.classList.add('text-sm');
+  if (text.length >= 3) el.classList.add('text-xs');
 }
 
 function renderSets() {
@@ -680,28 +748,29 @@ function renderSets() {
   youRow.innerHTML  = '';
   themRow.innerHTML = '';
 
-  // Completed sets
+  // Completed sets — winner bright, loser dimmed
   match.setsHistory.forEach(s => {
     const yWon = s.you > s.them;
-    const yEl  = document.createElement('div');
-    yEl.className = 'set-cell';
-    yEl.innerHTML = s.you + (s.tb && yWon  ? `<sup>${s.tb.themPts}</sup>` : '');
 
-    const tEl  = document.createElement('div');
-    tEl.className = 'set-cell';
+    const yEl = document.createElement('div');
+    yEl.className = 'set-cell ' + (yWon ? 'won' : 'lost');
+    yEl.innerHTML = s.you + (s.tb && yWon ? `<sup>${s.tb.themPts}</sup>` : '');
+
+    const tEl = document.createElement('div');
+    tEl.className = 'set-cell ' + (yWon ? 'lost' : 'won');
     tEl.innerHTML = s.them + (s.tb && !yWon ? `<sup>${s.tb.youPts}</sup>` : '');
 
     youRow.appendChild(yEl);
     themRow.appendChild(tEl);
   });
 
-  // Current set games (always show, even 0:0)
+  // Current set (always bright)
   const yC = document.createElement('div');
-  yC.className = 'set-cell current';
+  yC.className   = 'set-cell current';
   yC.textContent = match.youGames;
 
   const tC = document.createElement('div');
-  tC.className = 'set-cell current';
+  tC.className   = 'set-cell current';
   tC.textContent = match.themGames;
 
   youRow.appendChild(yC);
@@ -734,7 +803,6 @@ function goTo(name) {
   Object.entries(SCREEN_IDS).forEach(([k, id]) => {
     document.getElementById(id).classList.toggle('active', k === name);
   });
-
   if (name === 'home')    { homeFocus = 0; renderHome(); }
   if (name === 'who')     { wsChoice = 'you'; renderWhoServes(); }
   if (name === 'game')    { renderGame(); }
@@ -760,7 +828,6 @@ function handleKey(key) {
   }
 }
 
-// ── Home ─────────────────────────────────
 function onHome(key) {
   const maxIdx = Math.min(matchHistory.length, 5);
   if (key === 'ArrowUp')   { homeFocus = Math.max(0, homeFocus - 1); renderHome(); }
@@ -768,19 +835,17 @@ function onHome(key) {
   if (key === 'Enter' && homeFocus === 0) goTo('who');
 }
 
-// ── Who serves ───────────────────────────
 function onWho(key) {
   if (key === 'ArrowLeft')  { wsChoice = 'you';  renderWhoServes(); }
   if (key === 'ArrowRight') { wsChoice = 'them'; renderWhoServes(); }
   if (key === 'Enter') {
-    match        = freshMatch(wsChoice);
+    match = freshMatch(wsChoice);
     stateHistory = [];
     goTo('game');
   }
   if (key === 'Escape') goTo('home');
 }
 
-// ── Game ─────────────────────────────────
 function onGame(key) {
   if (match.finished) {
     if (key === 'Enter' || key === 'Escape') goTo('home');
@@ -793,7 +858,6 @@ function onGame(key) {
   if (key === 'Escape')     goTo('close');
 }
 
-// ── Confirm finish ───────────────────────
 function onConfirm(key) {
   if (key === 'ArrowLeft')  { cfFocus = 'yes'; renderConfirm(); }
   if (key === 'ArrowRight') { cfFocus = 'no';  renderConfirm(); }
@@ -804,7 +868,6 @@ function onConfirm(key) {
   }
 }
 
-// ── Confirm close ────────────────────────
 function onClose(key) {
   if (key === 'ArrowLeft')  { clFocus = 'yes'; renderClose(); }
   if (key === 'ArrowRight') { clFocus = 'no';  renderClose(); }
