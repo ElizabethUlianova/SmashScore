@@ -80,16 +80,19 @@
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
                   inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
-    .btn-new-match.focused { border-color: #E05A00; }
+    .btn-new-match.focused { border-color: #E05A00; color: #E05A00; }
 
     .match-list {
       width: 394px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      overflow: hidden;
+      overflow-y: auto;
       flex: 1;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
     }
+    .match-list::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
     .match-item {
       width: 394px;
@@ -117,6 +120,7 @@
       align-items: flex-start;
       gap: 8px;
       flex-shrink: 0;
+      align-self: flex-start;
     }
 
     .match-result {
@@ -164,6 +168,8 @@
       align-items: baseline;
     }
     .match-sets-row sup { font-size: 16px; color: #bbb; }
+    .match-sets-row span.set-score-won  { color: #fff; }
+    .match-sets-row span.set-score-lost { color: rgba(255, 255, 255, 0.38); }
 
     /* ═══════════════════════════════════════
        WHO SERVES / CONFIRM screens (shared)
@@ -195,14 +201,6 @@
       display: flex;
       gap: 16px;
       margin-top: 24px;
-      /* glass on container */
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(16px) saturate(1.6);
-      -webkit-backdrop-filter: blur(16px) saturate(1.6);
-      border: 1px solid rgba(255, 255, 255, 0.10);
-      border-radius: 20px;
-      padding: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .dialog-btn {
       border-radius: 14px;
@@ -211,14 +209,16 @@
       font-weight: 400;
       font-family: 'Mukta', sans-serif;
       color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 2px solid rgba(255, 255, 255, 0.14);
       transition: color 0.12s, border-color 0.12s;
       min-width: 110px;
       text-align: center;
       /* glass */
-      background: rgba(255, 255, 255, 0.10);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .dialog-btn.focused {
       color: #E05A00;
@@ -291,8 +291,8 @@
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      justify-content: center;
+      gap: 0px;
+      justify-content: flex-start;
       /* glass */
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px) saturate(1.8);
@@ -641,12 +641,16 @@ function renderHome() {
     const dateStr  = fmtDate(new Date(rec.ts));
 
     const youCells  = rec.sets.map(s => {
-      const sup = s.tb && s.you > s.them ? `<sup>${s.tb.themPts}</sup>` : '';
-      return `${s.you}${sup}`;
+      const yWon = s.you > s.them;
+      const cls  = yWon ? 'set-score-won' : 'set-score-lost';
+      const sup  = s.tb && yWon ? `<sup>${s.tb.themPts}</sup>` : '';
+      return `<span class="${cls}">${s.you}${sup}</span>`;
     });
     const themCells = rec.sets.map(s => {
-      const sup = s.tb && s.them > s.you ? `<sup>${s.tb.youPts}</sup>` : '';
-      return `${s.them}${sup}`;
+      const tWon = s.them > s.you;
+      const cls  = tWon ? 'set-score-won' : 'set-score-lost';
+      const sup  = s.tb && tWon ? `<sup>${s.tb.youPts}</sup>` : '';
+      return `<span class="${cls}">${s.them}${sup}</span>`;
     });
 
     item.innerHTML = `
@@ -662,11 +666,11 @@ function renderHome() {
       <div class="match-sets">
         <div class="match-sets-row">
           <span>${rec.youSets}</span>
-          ${youCells.map(c => `<span>${c}</span>`).join('')}
+          ${youCells.join('')}
         </div>
         <div class="match-sets-row">
           <span>${rec.themSets}</span>
-          ${themCells.map(c => `<span>${c}</span>`).join('')}
+          ${themCells.join('')}
         </div>
       </div>`;
     list.appendChild(item);
@@ -676,7 +680,9 @@ function renderHome() {
 function updateHomeFocus() {
   document.getElementById('btn-new-match').classList.toggle('focused', homeFocus === 0);
   document.querySelectorAll('.match-item').forEach((el, i) => {
-    el.classList.toggle('focused', homeFocus === i + 1);
+    const isFocused = homeFocus === i + 1;
+    el.classList.toggle('focused', isFocused);
+    if (isFocused) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 }
 
