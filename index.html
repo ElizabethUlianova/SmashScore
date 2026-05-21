@@ -388,6 +388,42 @@
     .set-cell.won  { color: #fff; }
     /* completed set loser = dimmed */
     .set-cell.lost { color: rgba(255, 255, 255, 0.38); }
+
+    /* ── GAME NAVIGATION HINT ── */
+    .game-nav-hint {
+      width: 288px;
+      height: 68px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-hint-item {
+      display: flex;
+      width: 56px;
+      flex-direction: column;
+      align-items: center;
+    }
+    .nav-hint-arrow {
+      height: 32px;
+      color: #fff;
+      text-align: center;
+      font-family: 'Mukta', sans-serif;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 32px;
+    }
+    .nav-hint-label {
+      width: 56px;
+      height: 36px;
+      color: rgba(255, 255, 255, 0.45);
+      text-align: center;
+      font-family: 'Mukta', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.3;
+    }
   </style>
 </head>
 <body>
@@ -442,6 +478,26 @@
         <img src="icons/tennis ball icon.png" class="serve-ball" alt="">
         <span id="them-serve-side">Right</span>
       </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION HINT -->
+  <div class="game-nav-hint">
+    <div class="nav-hint-item">
+      <div class="nav-hint-arrow">&#x1F805;</div>
+      <div class="nav-hint-label">You win point</div>
+    </div>
+    <div class="nav-hint-item">
+      <div class="nav-hint-arrow">&#x1F807;</div>
+      <div class="nav-hint-label">You lose point</div>
+    </div>
+    <div class="nav-hint-item">
+      <div class="nav-hint-arrow">&#x1F804;</div>
+      <div class="nav-hint-label">Undo point</div>
+    </div>
+    <div class="nav-hint-item">
+      <div class="nav-hint-arrow">&#x1F806;</div>
+      <div class="nav-hint-label">End match</div>
     </div>
   </div>
 </div>
